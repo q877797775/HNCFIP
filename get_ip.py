@@ -100,8 +100,11 @@ def fetch_best_ips():
         speed_tag = "高速⚡"
         final_addr = ip_port_str if ':' in ip_port_str else f"{ip_port_str}:443"
         
-        # ⚠️【格式微调】：去掉了 speed_tag 和 by Joe 之间的空格，严格变成：[高速⚡by Joe 32M]
-        formatted_nodes.append(f"{final_addr}# {region} [{speed_tag}by Joe {real_bandwidth}]")
+        # ⚠️【关键格式修复】：
+        # 1. 干掉了 # 号后面的空格，变成 final_addr#region
+        # 2. 干掉了 speed_tag 和 by Joe 之间的空格，变成 [高速⚡by Joe 32M]
+        # 3. 严格对齐大厂格式：443#HK [高速⚡by Joe 32M]
+        formatted_nodes.append(f"{final_addr}#{region} [{speed_tag}by Joe {real_bandwidth}]")
 
         if len(formatted_nodes) >= 48:
             break
@@ -110,7 +113,7 @@ def fetch_best_ips():
     with open(filename, "w", encoding="utf-8") as f:
         f.write("\n".join(formatted_nodes))
 
-    print(f"🎉【空格修正版升级成功】共生成 {len(formatted_nodes)} 个单播节点 → 文件名：{filename}")
+    print(f"🎉【完美像素级对齐版】共生成 {len(formatted_nodes)} 个单播节点 → 文件名：{filename}")
     return formatted_nodes
 
 if __name__ == "__main__":
