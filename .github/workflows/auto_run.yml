@@ -21,60 +21,16 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: 自动同步并加载大厂高精测速工具
-      run: |
-        pip install requests
-        # 直接拉取圈内最硬核的高精测速结果字段解析模块
-        curl -s https://githubusercontent.com -o core_cfip.py
+    - name: 安装运行依赖
+      run: pip install requests
 
-    - name: 运行河南电信联通高级过滤
-      run: |
-        # 创建一个临时的执行脚本，精准调用大佬的跑分剥离引擎，同时锁定你专属的 [by Joe] 标签和真实的动态速度分配
-        python -c "
-        import requests, re, json
-        # 接入大厂实时跑分总池（包含真实带宽与低延迟直连路由段）
-        res = requests.get('https://isoyu.com', timeout=15)
-        lines = res.text.strip().split('\n')
-        output = []
-        count = 0
-        for line in lines:
-            if not line.strip() or '#' in line: continue
-            parts = line.split()
-            if not parts: continue
-            ip_port = parts[0]
-            ip = ip_port.split(':')[0]
-            if len(ip.split('.')) != 4: continue
-            
-            # 高精动态带宽解析逻辑：大厂实际测出来多少 M 速度，就精准打印多少 M 速度，拒绝固定 30M
-            real_bandwidth = '31M'
-            if len(parts) >= 3:
-                nums = re.findall(r'\d+', ''.join(parts[1:]))
-                if len(nums) >= 2: real_bandwidth = f'{nums[1]}M'
-            
-            # 绝不绕美：强力拉黑高延迟与美国绕路段，只保留近场黄金骨干路由
-            if '172.67' in ip or '104.22' in ip: continue
-            
-            # 国家/地区简称自适应分配
-            region = 'HK'
-            if ip.startswith('104.18') or ip.startswith('104.21'): region = 'SG'
-            elif ip.startswith('104.19'): region = 'JP'
-            elif ip.startswith('172.64'): region = 'TW'
-            
-            # 分配极速、高速速度标签
-            speed_tag = '极速' if count < 15 else '高速' if count < 35 else '标准'
-            
-            output.append(f'{ip_port}# {region} [{speed_tag} by Joe {real_bandwidth}]')
-            count += 1
-            if count >= 48: break
-            
-        with open('joehncfip.txt', 'w', encoding='utf-8') as f:
-            f.write('\n'.join(output))
-        "
+    - name: 运行河南电信联通高级过滤脚本
+      run: python get_ip.py
 
-    - name: 自动将大厂级别优选文本推送到仓库
+    - name: 自动将新生成的优选文本推送到仓库
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@://github.com"
         git add joehncfip.txt
-        git commit -m "河南联通电信专属优选自动更新" || exit 0
+        git commit -m "自动更新河南联通电信优选IP" || exit 0
         git push
