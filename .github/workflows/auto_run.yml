@@ -1,72 +1,36 @@
-import requests
-import re
+name: 自动同步河南优选IP
 
-def clean_ip(text):
-    """提取文本中的合法 IPv4 地址"""
-    ip_pattern = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
-    return re.findall(ip_pattern, text)
+on:
+  schedule:
+    - cron: '0 0,3,6,9,12,15,18,21 * * *'
+    - cron: '30 1,4,7,10,13,16,19,22 * * *'
+  workflow_dispatch:
 
-def fetch_henan_best_ips():
-    print("🚀 开始收集专属于【河南电信/联通】的高速 Cloudflare Anycast IP...")
-    
-    # 整合多个全网最稳定的公开电信/联通优选测速源
-    sources = [
-        "https://isoyu.com",
-        "https://githubusercontent.com",
-        "https://githubusercontent.com"
-    ]
-    
-    unique_ips = []
-    for url in sources:
-        try:
-            res = requests.get(url, timeout=8)
-            if res.status_code == 200:
-                raw_ips = clean_ip(res.text)
-                for ip in raw_ips:
-                    if ip not in unique_ips and len(ip.split('.')) == 4:
-                        unique_ips.append(ip)
-        except Exception as e:
-            print(f"⚠️ 跳过不稳定源: {e}")
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
-    # 严格筛选前 48 个
-    best_ips = unique_ips[:48]
-    if len(best_ips) < 48:
-        best_ips.extend(["104.16.123.96", "104.17.123.96", "104.18.123.96", "104.19.123.96"])
-        best_ips = list(set(best_ips))[:48]
+    steps:
+    - name: 检查仓库代码
+      uses: actions/checkout@v3
 
-    # 机房分配的地区映射表
-    loc_map = {
-        "104.16": "HK", "104.17": "HK",
-        "104.18": "SG", "104.21": "SG",
-        "104.19": "JP", "104.22": "JP",
-        "172.64": "TW", "172.67": "US"
-    }
+    - name: 安装 Python 环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-    output_lines = []
-    for idx, ip in enumerate(best_ips):
-        first_two = ".".join(ip.split('.')[:2])
-        region = loc_map.get(first_two, "HK")
+    - name: 安装运行依赖
+      run: pip install requests
 
-        # 模拟最符合河南当地的最高带宽标识
-        if idx < 12:
-            bandwidth = "30M"
-            speed_tag = "极速"
-        elif idx < 32:
-            bandwidth = "20M"
-            speed_tag = "高速"
-        else:
-            bandwidth = "15M"
-            speed_tag = "标准"
+    - name: 运行定制抓取脚本
+      run: python get_ip.py
 
-        # 格式：IP# 属地 [标签 by Joe 带宽]
-        formatted_line = f"{ip}# {region} [{speed_tag} by Joe {bandwidth}]"
-        output_lines.append(formatted_line)
-
-    # 🎯 核心修改：这里正式命名为你要求的自定义文件 joehncfip.txt
-    with open("joehncfip.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join(output_lines))
-        
-    print(f"🎉 专属于【河南】的优选 IP 数据源已打包成功！文件名：joehncfip.txt")
-
-if __name__ == "__main__":
-    fetch_henan_best_ips()
+    - name: 自动将新生成的优选文本推送到仓库
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@://github.com"
+        git add joehncfip.txt
+        git commit -m "自动更新河南联通电信优选IP" || exit 0
+        git push
