@@ -11,9 +11,11 @@ def fetch_henan_best_ips():
     
     # 整合多个全网最稳定的公开电信/联通优选测速源
     sources = [
-        "https://isoyu.com",
         "https://githubusercontent.com",
-        "https://githubusercontent.com"
+        "https://githubusercontent.com",
+        "https://isoyu.com",
+        "https://qzz.io"
+    ]
     ]
     
     unique_ips = []
