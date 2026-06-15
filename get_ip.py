@@ -10,7 +10,6 @@ def parse_and_adapt_region(line_text, ip_str):
     """
     line_upper = str(line_text).upper()
     
-    # 建立全亚太及东南亚直连明星地区映射图谱
     region_keywords = {
         "HK": "HK", "HONGKONG": "HK", "香港": "HK",
         "JP": "JP", "JAPAN": "JP", "日本": "JP", "TOKYO": "JP",
@@ -27,7 +26,7 @@ def parse_and_adapt_region(line_text, ip_str):
         if kw in line_upper:
             return reg_code
             
-    # 2. 智能自适应分流到全亚洲直连黄金圈中中
+    # 2. 智能自适应分流到全亚洲直连黄金圈中
     try:
         ip_hash = sum(int(x) for x in ip_str.split('.') if x.isdigit())
         asia_pool = ["HK", "JP", "SG", "TW", "VN", "TH", "MY", "KR"]
@@ -36,9 +35,9 @@ def parse_and_adapt_region(line_text, ip_str):
         return "JP"
 
 def fetch_best_ips():
-    print(f"[{datetime.now()}] 🚀 正在直接对接大厂大神的 4 个核心全量优选池（带 iOS 闪电独家定制外观）...")
+    print(f"[{datetime.now()}] 🚀 正在直接对接大厂大神的 4 个核心全量优选池（100% 直通全放行）...")
 
-    # 直接无条件放行大厂大神的 4 个核心顶级源
+    # 毫无保留放行大厂大神的 4 个核心顶级源
     ip_sources = [
         "https://qzz.io", # 北京电信 优选
         "https://qzz.io", # 北京电信 所有可用
@@ -53,14 +52,14 @@ def fetch_best_ips():
             if resp.status_code == 200:
                 lines = [line.strip() for line in resp.text.splitlines() if line.strip() and not line.startswith("#")]
                 all_raw_lines.extend(lines)
-                print(f"✅ 已成功继承大佬源 {url}，读取到 {len(lines)} 条纯净数据")
+                print(f"✅【全速通航】已完美继承大佬源 {url}，读取到 {len(lines)} 条纯净数据")
         except Exception as e:
             print(f"⚠️ 读取大厂源 {url} 发生波动: {e}")
 
     formatted_nodes = []
     seen_ips = set()
     
-    # 打乱原始大池子的顺序，确保每次更新时，带宽数字能够实现大范围随机联动跳变
+    # 彻底打乱原始大池子的顺序，确保每次更新时，带宽数字能够实现大范围随机联动跳变
     random.shuffle(all_raw_lines)
 
     print("📊 开始执行大厂字段拆分，重塑 Joe 专属【高速⚡】翻墙皮肤...")
@@ -69,16 +68,17 @@ def fetch_best_ips():
             continue
             
         parts = line.split()
-        if not parts:
+        if not parts or len(parts) < 1:
             continue
             
-        # 提取真正的 IP:端口 字符串，完美剔除网段斜杠，客户端 100% 成功识别
-        ip_port_str = str(parts).strip()
+        # ⚠️【终极精准切取】：直接获取列表中的第一个元素，提取纯净的 IP:端口 字符串
+        ip_port_str = str(parts[0]).strip()
         
+        # 排除网段斜杠
         if '/' in ip_port_str:
             continue
             
-        pure_ip = ip_port_str.split(':') if ':' in ip_port_str else ip_port_str
+        pure_ip = ip_port_str.split(':')[0] if ':' in ip_port_str else ip_port_str
         
         if len(pure_ip.split('.')) != 4:
             continue
@@ -87,14 +87,14 @@ def fetch_best_ips():
             continue
         seen_ips.add(pure_ip)
 
-        # 调用高级适配引擎，提取或自适应它是台北、越南、香港还是日本
+        # 调用高级自适应引擎适配地区简称
         region = parse_and_adapt_region(line, pure_ip)
 
         # 带宽真实跳变解析：切出大佬的实测跑分，让带宽速度完美在 12M 到 55M 之间真实随机联动
         try:
             bw_match = re.findall(r'(\d+)\s*[Mm]', line)
             if bw_match:
-                real_bandwidth = f"{bw_match}M"
+                real_bandwidth = f"{bw_match[0]}M"
             else:
                 ip_hash = sum(int(x) for x in pure_ip.split('.') if x.isdigit())
                 if len(formatted_nodes) < 15:
@@ -106,10 +106,10 @@ def fetch_best_ips():
         except:
             real_bandwidth = "28M"
 
-        # ⚠️ 核心高级定制修改点：统一硬核打上【高速⚡】标签！
+        # 统一硬核打上【高速⚡】标签！
         speed_tag = "高速⚡"
 
-        # 完美对齐格式输出：IP:端口# 属地 [高速⚡ by Joe 真实带宽]
+        # 完美输出格式：IP:端口# 属地 [高速⚡ by Joe 真实带宽]
         final_addr = ip_port_str if ':' in ip_port_str else f"{ip_port_str}:443"
         formatted_nodes.append(f"{final_addr}# {region} [{speed_tag} by Joe {real_bandwidth}]")
 
@@ -121,7 +121,7 @@ def fetch_best_ips():
     with open(filename, "w", encoding="utf-8") as f:
         f.write("\n".join(formatted_nodes))
 
-    print(f"🎉【专属闪电皮肤版升级成功】共生成 {len(formatted_nodes)} 个节点 → 文件名：{filename}")
+    print(f"🎉【100%全量继承大佬源升级成功】共生成 {len(formatted_nodes)} 个单播节点 → 文件名：{filename}")
     return formatted_nodes
 
 if __name__ == "__main__":
