@@ -5,7 +5,7 @@ from datetime import datetime
 
 def parse_and_adapt_region(line_text, ip_str):
     """
-    【大佬属地全量继承与自适应适配】：
+    【自适应属地全量继承与适配引擎】：
     精准提取大厂日志里已经分配好的真实落地属地特征；若无则通过哈希序列智能适配到全亚太直连圈。
     """
     line_upper = str(line_text).upper()
@@ -21,12 +21,10 @@ def parse_and_adapt_region(line_text, ip_str):
         "KR": "KR", "KOREA": "KR", "韩国": "KR"
     }
     
-    # 1. 优先尝试从大佬的原始文本行中精准抓取地区标签
     for kw, reg_code in region_keywords.items():
         if kw in line_upper:
             return reg_code
             
-    # 2. 智能自适应分流到全亚洲直连黄金圈中
     try:
         ip_hash = sum(int(x) for x in ip_str.split('.') if x.isdigit())
         asia_pool = ["HK", "JP", "SG", "TW", "VN", "TH", "MY", "KR"]
@@ -35,14 +33,14 @@ def parse_and_adapt_region(line_text, ip_str):
         return "JP"
 
 def fetch_best_ips():
-    print(f"[{datetime.now()}] 🚀 正在直接对接大厂大神的 4 个核心全量优选池（100% 直通全放行）...")
+    print(f"[{datetime.now()}] 🚀 正在直接对接大厂大神的 4 个核心全量优选池（100% 真实完整网址直通全放行）...")
 
-    # 毫无保留放行大厂大神的 4 个核心顶级源
+    # 🎯【100% 严格对齐您指定的 4 个完整真实网址，一字不差，开辟红灯特权通道】
     ip_sources = [
-        "https://qzz.io", # 北京电信 优选
-        "https://qzz.io", # 北京电信 所有可用
-        "https://qzz.io",     # 四川联通 优选
-        "https://qzz.io"      # 四川联通 所有可用
+        "https://cf.junzhen.qzz.io/best_ips_bj.txt",
+        "https://cf.junzhen.qzz.io/full_ips_bj.txt",
+        "https://cf.junzhen.qzz.io/best_ips.txt",
+        "https://cf.junzhen.qzz.io/full_ips.txt"
     ]
 
     all_raw_lines = []
@@ -52,14 +50,14 @@ def fetch_best_ips():
             if resp.status_code == 200:
                 lines = [line.strip() for line in resp.text.splitlines() if line.strip() and not line.startswith("#")]
                 all_raw_lines.extend(lines)
-                print(f"✅【全速通航】已完美继承大佬源 {url}，读取到 {len(lines)} 条纯净数据")
+                print(f"✅【完整读取成功】已无缝继承大厂源 {url}，提取到 {len(lines)} 条纯净数据")
         except Exception as e:
-            print(f"⚠️ 读取大厂源 {url} 发生波动: {e}")
+            print(f"❌ 读取大厂源 {url} 发生错误: {e}")
 
     formatted_nodes = []
     seen_ips = set()
     
-    # 彻底打乱原始大池子的顺序，确保每次更新时，带宽数字能够实现大范围随机联动跳变
+    # 打乱原始大池子的顺序，确保每次更新时，带宽数字能够实现大范围随机联动跳变
     random.shuffle(all_raw_lines)
 
     print("📊 开始执行大厂字段拆分，重塑 Joe 专属【高速⚡】翻墙皮肤...")
@@ -71,8 +69,8 @@ def fetch_best_ips():
         if not parts or len(parts) < 1:
             continue
             
-        # ⚠️【终极精准切取】：直接获取列表中的第一个元素，提取纯净的 IP:端口 字符串
-        ip_port_str = str(parts[0]).strip()
+        # ⚠️【精准提取】：直接提取列表中的第 0 个字符串，彻底剥离方括号，100% 格式对齐
+        ip_port_str = parts[0].strip()
         
         # 排除网段斜杠
         if '/' in ip_port_str:
@@ -106,7 +104,7 @@ def fetch_best_ips():
         except:
             real_bandwidth = "28M"
 
-        # 统一硬核打上【高速⚡】标签！
+        # ⚠️ 统一硬核打上【高速⚡】标签！
         speed_tag = "高速⚡"
 
         # 完美输出格式：IP:端口# 属地 [高速⚡ by Joe 真实带宽]
@@ -121,7 +119,7 @@ def fetch_best_ips():
     with open(filename, "w", encoding="utf-8") as f:
         f.write("\n".join(formatted_nodes))
 
-    print(f"🎉【100%全量继承大佬源升级成功】共生成 {len(formatted_nodes)} 个单播节点 → 文件名：{filename}")
+    print(f"🎉【100%全量继承大厂源升级成功】共生成 {len(formatted_nodes)} 个单播节点 → 文件名：{filename}")
     return formatted_nodes
 
 if __name__ == "__main__":
